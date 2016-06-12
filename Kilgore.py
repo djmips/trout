@@ -31,13 +31,13 @@ import time
 #-- Defines --
 
 TAIL = 0
-HEAD0 = 2
-HEAD1 = 3
-MOUTH = 4
+HEAD0 = 1
+HEAD1 = 2
+MOUTH = 3
 
 #-- Data --
 # array of wav sounds
-pins = [11, 12, 15, 16, 18]
+pins = [11, 15, 16, 18]
 
 #-- Code --
 
@@ -82,12 +82,12 @@ def test_fish():
 			#GPIO.output(n, True)
 		GPIO.output(pins[HEAD0], True)
 		GPIO.output(pins[HEAD1], False)
-		time.sleep(2.0)
+		time.sleep(0.9)
 		#for n in pins:
 			#GPIO.output(n, False)
 		GPIO.output(pins[HEAD0], False)
 		GPIO.output(pins[HEAD1], True)
-		time.sleep(2.0)
+		time.sleep(0.5)
 
 def signal_handler(signal, frame):
 	print 'You pressed Ctrl+C!'

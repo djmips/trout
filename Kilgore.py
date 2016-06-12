@@ -28,26 +28,22 @@ import pyaudio
 import RPi.GPIO as GPIO
 import time
 
+#-- Defines --
+
+TAIL = 0
+HEAD0 = 2
+HEAD1 = 3
+MOUTH = 4
+
 #-- Data --
 # array of wav sounds
 pins = [11, 12, 15, 16, 18]
 
 #-- Code --
 
-#subroutines
+#classes
 
-
-def signal_handler(signal, frame):
-	print 'You pressed Ctrl+C!'
-	for n in pins:
-		GPIO.output(n, False)
-	sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-#
-
-class Timer:
+class ProfileTimer:
 	#
 	function = time.clock
 
@@ -61,18 +57,54 @@ class Timer:
 	def delta(start):
 		return Timer.function() - start
 
+		
+class Timer:
+	#
+	function = time.time
+
+	# is providing a start time
+	@staticmethod
+	def value():
+		return Timer.function()
+
+	# calculating delta between current time and start time.
+	@staticmethod
+	def delta(start):
+		return Timer.function() - start		
+		
+#subroutines
+
+def test_fish():
+	start = Timer.value();
+	while Timer.delta(start) < 10.0:
+		#print Timer.delta(start)
+		#for n in pins:
+			#GPIO.output(n, True)
+		GPIO.output(pins[HEAD0], True)
+		GPIO.output(pins[HEAD1], False)
+		time.sleep(2.0)
+		#for n in pins:
+			#GPIO.output(n, False)
+		GPIO.output(pins[HEAD0], False)
+		GPIO.output(pins[HEAD1], True)
+		time.sleep(2.0)
+
+def signal_handler(signal, frame):
+	print 'You pressed Ctrl+C!'
+	for n in pins:
+		GPIO.output(n, False)
+	sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+#
+
 # setup the pins as output 
 for n in pins:
 	GPIO.setup(n, GPIO.OUT)
 	GPIO.output(n, False)
 
-while True:
-	for n in pins:
-		GPIO.output(n, True)
-	time.sleep(0.2)
-	for n in pins:
-		GPIO.output(n, False)
-	time.sleep(0.2)
+test_fish();
 
 #Wait for button press
 

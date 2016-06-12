@@ -30,6 +30,7 @@ import time
 
 #-- Data --
 # array of wav sounds
+pins = [11, 12, 15, 16, 18]
 
 #-- Code --
 
@@ -38,7 +39,8 @@ import time
 
 def signal_handler(signal, frame):
 	print 'You pressed Ctrl+C!'
-	GPIO.output(11, False)
+	for n in pins:
+		GPIO.output(n, False)
 	sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -59,17 +61,17 @@ class Timer:
 	def delta(start):
 		return Timer.function() - start
 
-
-#test
-
-GPIO.setup(11, GPIO.OUT)
-GPIO.output(11, False)
-
+# setup the pins as output 
+for n in pins:
+	GPIO.setup(n, GPIO.OUT)
+	GPIO.output(n, False)
 
 while True:
-	GPIO.output(11,True)
+	for n in pins:
+		GPIO.output(n, True)
 	time.sleep(0.2)
-	GPIO.output(11,False)
+	for n in pins:
+		GPIO.output(n, False)
 	time.sleep(0.2)
 
 #Wait for button press

@@ -68,9 +68,9 @@ GPIO.output(11, False)
 
 while True:
 	GPIO.output(11,True)
-	time.sleep(0.5)
+	time.sleep(0.2)
 	GPIO.output(11,False)
-	time.sleep(0.5)
+	time.sleep(0.2)
 
 #Wait for button press
 

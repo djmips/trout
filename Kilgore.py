@@ -74,25 +74,75 @@ class Timer:
 		
 #subroutines
 
-def test_fish():
-	start = Timer.value();
-	while Timer.delta(start) < 10.0:
-		#print Timer.delta(start)
-		#for n in pins:
-			#GPIO.output(n, True)
+def headMove():
+	#print Timer.delta(start)
+	a = 1
+	while (a < 10000):
 		GPIO.output(pins[HEAD0], True)
 		GPIO.output(pins[HEAD1], False)
-		time.sleep(0.9)
-		#for n in pins:
-			#GPIO.output(n, False)
+
+		s1 = Timer.value();
+		while Timer.delta(s1) < 2.9:
+			yield a
+		
 		GPIO.output(pins[HEAD0], False)
 		GPIO.output(pins[HEAD1], True)
-		time.sleep(0.5)
 
+		s2 = Timer.value();
+		while Timer.delta(s2) < 3.0:
+			#print "foooo" + str(Timer.delta(s2))
+			yield a
+			
+		yield a
+
+
+def tailFlap():
+	#print Timer.delta(start)
+	a = 1
+	while (a < 10000):
+		GPIO.output(pins[TAIL], True)
+
+		s1 = Timer.value();
+		while Timer.delta(s1) < 1.0:
+			yield a
+		
+		GPIO.output(pins[TAIL], False)
+
+		s2 = Timer.value();
+		while Timer.delta(s2) < 1.0:
+			yield a
+			
+		yield a
+		
+def mouthFlap():
+	#print Timer.delta(start)
+	a = 1
+	while (a < 10000):
+		GPIO.output(pins[MOUTH], True)
+
+		s1 = Timer.value();
+		while Timer.delta(s1) < 1.0:
+			yield a
+		
+		GPIO.output(pins[MOUTH], False)
+
+		s2 = Timer.value();
+		while Timer.delta(s2) < 1.0:
+			yield a
+			
+		yield a
+
+
+		
+		
+def resetPins():
+	for n in pins:
+		GPIO.output(n, False)	
+		
+		
 def signal_handler(signal, frame):
 	print 'You pressed Ctrl+C!'
-	for n in pins:
-		GPIO.output(n, False)
+	resetPins()
 	sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -103,9 +153,19 @@ signal.signal(signal.SIGINT, signal_handler)
 for n in pins:
 	GPIO.setup(n, GPIO.OUT)
 	GPIO.output(n, False)
+	
 
-test_fish();
+head = headMove()
+tail = tailFlap()
+mouth = mouthFlap()
+	
+while 1:
+	a = head.next()
+	b = tail.next()
+	c = mouth.next()
+	#print a
 
+resetPins()
 
 #Wait for button press
 

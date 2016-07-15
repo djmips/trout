@@ -106,7 +106,6 @@ for n in pins:
 
 test_fish();
 
-
 #Wait for button press
 
 #Pick random audio sound from array

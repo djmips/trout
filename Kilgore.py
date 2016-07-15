@@ -24,9 +24,12 @@
 import signal
 import sys
 import os
-import pyaudio
 import RPi.GPIO as GPIO
 import time
+import wave
+import getopt
+import alsaaudio
+
 
 #-- Defines --
 
@@ -74,8 +77,37 @@ class Timer:
 		
 #subroutines
 
+def setSampWidth(f):
+	# 8bit is unsigned in wav files
+	if f.getsampwidth() == 1:
+		device.setformat(alsaaudio.PCM_FORMAT_U8)
+	# Otherwise we assume signed data, little endian
+	elif f.getsampwidth() == 2:
+		device.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+	elif f.getsampwidth() == 3:
+		device.setformat(alsaaudio.PCM_FORMAT_S24_LE)
+	elif f.getsampwidth() == 4:
+		device.setformat(alsaaudio.PCM_FORMAT_S32_LE)
+	else:
+		raise ValueError('Unsupported format')
+
+		
+def headUp():
+	GPIO.output(pins[HEAD0], True)
+	GPIO.output(pins[HEAD1], False)	
+		
+def headDown():
+	GPIO.output(pins[HEAD0], False)
+	GPIO.output(pins[HEAD1], True)
+
+def tailStop():
+	GPIO.output(pins[TAIL], False)
+
+def mouthStop():
+	GPIO.output(pins[MOUTH], False)
+	
+	
 def headMove():
-	#print Timer.delta(start)
 	a = 1
 	while (a < 10000):
 		GPIO.output(pins[HEAD0], True)
@@ -103,13 +135,13 @@ def tailFlap():
 		GPIO.output(pins[TAIL], True)
 
 		s1 = Timer.value();
-		while Timer.delta(s1) < 1.0:
+		while Timer.delta(s1) < 0.4:
 			yield a
 		
 		GPIO.output(pins[TAIL], False)
 
 		s2 = Timer.value();
-		while Timer.delta(s2) < 1.0:
+		while Timer.delta(s2) < 0.4:
 			yield a
 			
 		yield a
@@ -121,18 +153,16 @@ def mouthFlap():
 		GPIO.output(pins[MOUTH], True)
 
 		s1 = Timer.value();
-		while Timer.delta(s1) < 1.0:
+		while Timer.delta(s1) < 0.2:
 			yield a
 		
 		GPIO.output(pins[MOUTH], False)
 
 		s2 = Timer.value();
-		while Timer.delta(s2) < 1.0:
+		while Timer.delta(s2) < 0.3:
 			yield a
 			
 		yield a
-
-
 		
 		
 def resetPins():
@@ -154,18 +184,62 @@ for n in pins:
 	GPIO.setup(n, GPIO.OUT)
 	GPIO.output(n, False)
 	
+device = alsaaudio.PCM()
+card = 'default'
 
 head = headMove()
 tail = tailFlap()
-mouth = mouthFlap()
-	
-while 1:
+mouth = mouthFlap()	
+   
+f = wave.open('wave/Recording32.wav', 'rb')
+
+# Set attributes
+device.setchannels(f.getnchannels())
+device.setrate(f.getframerate())
+setSampWidth(f)
+device.setperiodsize(320)   
+data = f.readframes(320)
+
+# tail flap starts it
+t0 = Timer.value();
+while Timer.delta(t0) < 4.0:
+	b = tail.next()
+
+# head forward still tail flapping
+headUp()
+t0 = Timer.value();
+while Timer.delta(t0) < 1.0:
+	b = tail.next()
+
+# play audio with lip flap	
+while data:
+	# Read data from stdin
+	a = 1
+	device.write(data)
+	data = f.readframes(320)
 	a = head.next()
 	b = tail.next()
 	c = mouth.next()
-	#print a
 
+#stop mouth and put head down
+mouthStop()
+headDown()
+	
+#but continue to flap tail for a few seconds	
+t0 = Timer.value();
+while Timer.delta(t0) < 2.0:
+	b = tail.next()
+
+#stop tail	
+tailStop()
+	
+t0 = Timer.value();
+while Timer.delta(t0) < 0.5:
+	print "o"
+	
 resetPins()
+
+f.close()	
 
 #Wait for button press
 

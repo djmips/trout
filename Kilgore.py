@@ -62,8 +62,8 @@ pins = [17, 22, 23, 24]
 #19 [  BCM10(MOSI)  *GRND          ]
 
 # array of fortune wav sounds
-
-fortunes = ['03','05','06','07','10','12','14','16','17','18','19','21','22','26','27','30','32']
+fortunes = ['03','05','06','07','10','12','14','16','17','18','19','21','22','26','27','32']
+# 30 is special and is the welcome to the imaginarium line
 
 #-- Code --
 
@@ -200,8 +200,7 @@ def mouthFlap():
 		
 def resetPins():
 	for n in pins:
-		GPIO.output(n, False)	
-		
+		GPIO.output(n, False)		
 		
 def signal_handler(signal, frame):
 	print 'You pressed Ctrl+C!'
@@ -233,8 +232,19 @@ head = headMove()
 tail = tailFlap()
 mouth = mouthFlap()	
 
-while 1:
+while True:
 
+	button_pressed = False
+	
+	t0 = Timer.value()
+	while Timer.delta(t0) < 20.0:
+		input_state = GPIO.input(BUTTON)
+		if input_state == False:
+			button_pressed = True
+			print('Button Pressed')
+			break
+
+			
 	print "START -------"
 	t0 = Timer.value()
 	while Timer.delta(t0) < 0.1:
@@ -244,8 +254,12 @@ while 1:
 	tail = tailFlap()
 	mouth = mouthFlap()	
 		  
-	fortune_pick = random.randrange(0,maxfortune)
-	fortuneFile = "wave/Recording" + fortunes[fortune_pick]+".wav"
+	if (button_pressed == True):
+		fortune_pick = random.randrange(0,maxfortune)
+		fortuneFile = "wave/Recording" + fortunes[fortune_pick] + ".wav"
+	else:
+		fortuneFile = "wave/Recording" + "30" + ".wav"
+		
 	print fortuneFile
 	   
 	f = wave.open( fortuneFile, 'rb')
@@ -285,7 +299,7 @@ while 1:
 		
 	#but continue to flap tail without mouth flap	
 	t0 = Timer.value()
-	while Timer.delta(t0) < 0.2:
+	while Timer.delta(t0) < 2.0:
 		b = tail.next()
 		
 	headDown()

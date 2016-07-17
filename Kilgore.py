@@ -265,6 +265,9 @@ while True:
 	f = wave.open( fortuneFile, 'rb')
 
 	device = alsaaudio.PCM()
+	
+	mixer = alsaaudio.Mixer('PCM')
+	mixer.setvolume(95)
 
 	# Set attributes
 	print f.getnchannels()

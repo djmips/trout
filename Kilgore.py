@@ -237,7 +237,7 @@ while True:
 	button_pressed = False
 	
 	t0 = Timer.value()
-	while Timer.delta(t0) < 20.0:
+	while Timer.delta(t0) < 300.0:
 		input_state = GPIO.input(BUTTON)
 		if input_state == False:
 			button_pressed = True
@@ -256,9 +256,9 @@ while True:
 		  
 	if (button_pressed == True):
 		fortune_pick = random.randrange(0,maxfortune)
-		fortuneFile = "wave/Recording" + fortunes[fortune_pick] + ".wav"
+		fortuneFile = "/home/pi/trout/wave/Recording" + fortunes[fortune_pick] + ".wav"
 	else:
-		fortuneFile = "wave/Recording" + "30" + ".wav"
+		fortuneFile = "/home/pi/trout/wave/Recording" + "30" + ".wav"
 		
 	print fortuneFile
 	   
@@ -309,12 +309,11 @@ while True:
 	while Timer.delta(t0) < 2.0:
 		b = tail.next()
 
-	#stop tail	
 	tailStop()
 		
-	#t0 = Timer.value()
-	#while Timer.delta(t0) < 0.5:
-	#	pass
+	t0 = Timer.value()
+	while Timer.delta(t0) < 2.5:
+		pass
 		
 	resetPins()
 

@@ -29,18 +29,41 @@ import time
 import wave
 import getopt
 import alsaaudio
+import random
 
 
 #-- Defines --
 
+#input BCM
+BUTTON = 18
+
+#output index
 TAIL = 0
 HEAD0 = 1
 HEAD1 = 2
 MOUTH = 3
 
 #-- Data --
-# array of wav sounds
-pins = [11, 15, 16, 18]
+
+# GPIO for motor control uses Physical Numbering
+#   TAIL HEAD0 HEAD1 MOUTH
+# pin   11, 15, 16, 18
+pins = [17, 22, 23, 24]
+
+#01 [ *3.3V          5V            ]
+#03 [  BCM2(SDA)     5V            ]
+#05 [  BCM3(SCL)     GRND          ]
+#07 [  BCM4(GPCLK0)  BCM14         ]
+#09 [  GRND          BCM15         ]
+#11 [ *BCM17 TAIL    BCM18         ]
+#13 [  BCM27         GRND          ]
+#15 [ *BCM22 HEAD0  *BCM23 HEAD1   ]
+#17 [  3.3V         *BCM24 MOUTH   ]
+#19 [  BCM10(MOSI)  *GRND          ]
+
+# array of fortune wav sounds
+
+fortunes = ['03','05','06','07','10','12','14','16','17','18','19','21','22','26','27','30','32']
 
 #-- Code --
 
@@ -93,32 +116,42 @@ def setSampWidth(f):
 
 		
 def headUp():
+	print "headUp"
 	GPIO.output(pins[HEAD0], True)
-	GPIO.output(pins[HEAD1], False)	
+	#PIO.output(pins[HEAD1], False)	
 		
 def headDown():
+	print "headDown"
 	GPIO.output(pins[HEAD0], False)
 	GPIO.output(pins[HEAD1], True)
 
+def tailStart():
+	print "tailStart"
+	GPIO.output(pins[TAIL], True)
+	
 def tailStop():
+	print "tailStop"
 	GPIO.output(pins[TAIL], False)
 
+def mouthStart():
+	print "mouthStart"
+	GPIO.output(pins[MOUTH], True)
+	
 def mouthStop():
+	print "mouthStop"
 	GPIO.output(pins[MOUTH], False)
 	
 	
 def headMove():
 	a = 1
 	while (a < 10000):
-		GPIO.output(pins[HEAD0], True)
-		GPIO.output(pins[HEAD1], False)
+		headUp()
 
 		s1 = Timer.value();
 		while Timer.delta(s1) < 2.9:
 			yield a
 		
-		GPIO.output(pins[HEAD0], False)
-		GPIO.output(pins[HEAD1], True)
+		headDown()
 
 		s2 = Timer.value();
 		while Timer.delta(s2) < 3.0:
@@ -132,13 +165,13 @@ def tailFlap():
 	#print Timer.delta(start)
 	a = 1
 	while (a < 10000):
-		GPIO.output(pins[TAIL], True)
+		tailStart()
 
 		s1 = Timer.value();
 		while Timer.delta(s1) < 0.4:
 			yield a
 		
-		GPIO.output(pins[TAIL], False)
+		tailStop()
 
 		s2 = Timer.value();
 		while Timer.delta(s2) < 0.4:
@@ -150,13 +183,13 @@ def mouthFlap():
 	#print Timer.delta(start)
 	a = 1
 	while (a < 10000):
-		GPIO.output(pins[MOUTH], True)
+		mouthStart()
 
 		s1 = Timer.value();
 		while Timer.delta(s1) < 0.2:
 			yield a
 		
-		GPIO.output(pins[MOUTH], False)
+		mouthStop()
 
 		s2 = Timer.value();
 		while Timer.delta(s2) < 0.3:
@@ -175,9 +208,18 @@ def signal_handler(signal, frame):
 	resetPins()
 	sys.exit(0)
 
+
+#START #####################################################################
+
 signal.signal(signal.SIGINT, signal_handler)
 
-#
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # for push button 
+
+#more efficient way to get the size of array? ( I forgot how in Python )
+maxfortune = 0
+for file in fortunes:
+	maxfortune = maxfortune + 1
 
 # setup the pins as output 
 for n in pins:
@@ -190,56 +232,80 @@ card = 'default'
 head = headMove()
 tail = tailFlap()
 mouth = mouthFlap()	
-   
-f = wave.open('wave/Recording32.wav', 'rb')
 
-# Set attributes
-device.setchannels(f.getnchannels())
-device.setrate(f.getframerate())
-setSampWidth(f)
-device.setperiodsize(320)   
-data = f.readframes(320)
+while 1:
 
-# tail flap starts it
-t0 = Timer.value();
-while Timer.delta(t0) < 4.0:
-	b = tail.next()
+	print "START -------"
+	t0 = Timer.value()
+	while Timer.delta(t0) < 0.1:
+		pass
+		
+	head = headMove()
+	tail = tailFlap()
+	mouth = mouthFlap()	
+		  
+	fortune_pick = random.randrange(0,maxfortune)
+	fortuneFile = "wave/Recording" + fortunes[fortune_pick]+".wav"
+	print fortuneFile
+	   
+	f = wave.open( fortuneFile, 'rb')
 
-# head forward still tail flapping
-headUp()
-t0 = Timer.value();
-while Timer.delta(t0) < 1.0:
-	b = tail.next()
+	device = alsaaudio.PCM()
 
-# play audio with lip flap	
-while data:
-	# Read data from stdin
-	a = 1
-	device.write(data)
+	# Set attributes
+	print f.getnchannels()
+	device.setchannels(f.getnchannels())
+	device.setrate(f.getframerate())
+	setSampWidth(f)
+	device.setperiodsize(320)   
 	data = f.readframes(320)
-	a = head.next()
-	b = tail.next()
-	c = mouth.next()
 
-#stop mouth and put head down
-mouthStop()
-headDown()
-	
-#but continue to flap tail for a few seconds	
-t0 = Timer.value();
-while Timer.delta(t0) < 2.0:
-	b = tail.next()
+	# tail flap starts it
+	t0 = Timer.value()
+	while Timer.delta(t0) < 4.0:
+		b = tail.next()
 
-#stop tail	
-tailStop()
-	
-t0 = Timer.value();
-while Timer.delta(t0) < 0.5:
-	print "o"
-	
-resetPins()
+	# head forward still tail flapping
+	headUp()
+	t0 = Timer.value()
+	while Timer.delta(t0) < 1.0:
+		b = tail.next()
 
-f.close()	
+	# play audio with lip flap	
+	while data:
+		# Read data from stdin
+		a = 1
+		device.write(data)
+		data = f.readframes(320)
+		a = head.next()
+		b = tail.next()
+		c = mouth.next()
+
+	mouthStop()
+		
+	#but continue to flap tail without mouth flap	
+	t0 = Timer.value()
+	while Timer.delta(t0) < 0.2:
+		b = tail.next()
+		
+	headDown()
+		
+	#but continue to flap tail for a few seconds	
+	t0 = Timer.value()
+	while Timer.delta(t0) < 2.0:
+		b = tail.next()
+
+	#stop tail	
+	tailStop()
+		
+	#t0 = Timer.value()
+	#while Timer.delta(t0) < 0.5:
+	#	pass
+		
+	resetPins()
+
+	print "close file"
+	f.close()	
 
 #Wait for button press
 

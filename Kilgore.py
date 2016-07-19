@@ -215,11 +215,6 @@ signal.signal(signal.SIGINT, signal_handler)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # for push button 
 
-#more efficient way to get the size of array? ( I forgot how in Python )
-maxfortune = 0
-for file in fortunes:
-	maxfortune = maxfortune + 1
-
 # setup the pins as output 
 for n in pins:
 	GPIO.setup(n, GPIO.OUT)
@@ -255,8 +250,8 @@ while True:
 	mouth = mouthFlap()	
 		  
 	if (button_pressed == True):
-		fortune_pick = random.randrange(0,maxfortune)
-		fortuneFile = "/home/pi/trout/wave/Recording" + fortunes[fortune_pick] + ".wav"
+		fortune_pick = random.choice(fortunes)
+		fortuneFile = "/home/pi/trout/wave/Recording" + fortune_pick + ".wav"
 	else:
 		fortuneFile = "/home/pi/trout/wave/Recording" + "30" + ".wav"
 		

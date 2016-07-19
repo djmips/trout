@@ -1,25 +1,18 @@
 # Kilgore Trout
 
 #-- Tools --
-# Location
+# Location on Pi
 #/home/pi/trout
 # Terminal
-#H:\DROPBOX\Dropbox\DEV\RaspPi\putty 
+#  putty 
 #username: pi
 #password: raspberry
 # Transfer files (same login)
-#D:\Program Files (x86)\FileZilla FTP Client\filezilla.exe
-# Test audio
-#aplay file.wav
+#  filezilla.exe
 
-#-- Hardware GPIO --
-# 7 -> LED 
-# 8,9 Mouth
-# 10,11 Turn
-# 12,13 Tail
-
-# Power
 # Need 3Amp power hooked up to micro USB + motors + Audio amp / speakers
+
+# requires version 0.6.2 of RPi.GPIO https://pypi.python.org/pypi/RPi.GPIO
 
 import signal
 import sys

@@ -13,7 +13,7 @@ TAIL HEAD0 HEAD1 MOUTH
 Physical pinout:  11, 15, 16, 18  
 GPIO pinout: 17, 22, 23, 24  
 -----------------------------------  
-#### Wiring  
+#### Wiring (physical pins)
 - 01 *3.3V
 - 02 5V
 - 03 BCM2(SDA)

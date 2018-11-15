@@ -10,9 +10,10 @@ GPIO for motor control uses Physical Numbering
 
 The tail and mouth are both just on/off but the head is controlled with a bidirectional h-bridge. The head can be driven both forward and backward. The tail and mouth are returned by spring.
 
-TAIL HEAD0 HEAD1 MOUTH  
+Tail Head0 Head1 Mouth    
 Physical pinout:  11, 15, 16, 18  
 GPIO pinout: 17, 22, 23, 24  
+
 -----------------------------------  
 #### Wiring (physical pins)
 - 01 *3.3V

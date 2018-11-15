@@ -6,8 +6,9 @@ Audio is wav format and should be at 48K native or stuttering occur.
 
 The following is also documented in Kilgore.py  
 
-### GPIO for motor control uses Physical Numbering  
+GPIO for motor control uses Physical Numbering  
 
+The tail and mouth are both just on/off but the head is controlled with a bidirectional h-bridge. The head can be driven both forward and backward. The tail and mouth are returned by spring.
 
 TAIL HEAD0 HEAD1 MOUTH  
 Physical pinout:  11, 15, 16, 18  

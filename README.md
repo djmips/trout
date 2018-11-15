@@ -1,4 +1,4 @@
-# trout
+# Magic Trout Imaginarium
 
 Main executable is Kilgore.py
 
@@ -6,7 +6,7 @@ Audio is wav format and should be at 48K native or stuttering occur.
 
 The following is also documented in Kilgore.py
 
-# GPIO for motor control uses Physical Numbering
+### GPIO for motor control uses Physical Numbering
 
 TAIL HEAD0 HEAD1 MOUTH
 - pin    11, 15, 16, 18

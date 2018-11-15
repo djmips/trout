@@ -9,8 +9,8 @@ The following is also documented in Kilgore.py
 ### GPIO for motor control uses Physical Numbering
 
 TAIL HEAD0 HEAD1 MOUTH
-- pin    11, 15, 16, 18
-- pins = 17, 22, 23, 24
+Physical pinout:  11, 15, 16, 18
+GPIO pinout: 17, 22, 23, 24
 -----------------------------------
 #### Wiring
 - 01 *3.3V

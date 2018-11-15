@@ -1,4 +1,5 @@
 # Kilgore Trout
+# This is the main executable and all you need to run your brand new talking TROUT!
 
 #-- Tools --
 # Location on Pi
@@ -38,9 +39,9 @@ MOUTH = 3
 
 #-- Data --
 
-# GPIO for motor control uses Physical Numbering
-#   TAIL HEAD0 HEAD1 MOUTH
-# pin   11, 15, 16, 18
+# GPIO for motor control 
+#             TAIL HEAD0 HEAD1 MOUTH
+# Physical pin   11, 15, 16, 18
 pins = [17, 22, 23, 24]
 
 #01 [ *3.3V          5V            ]

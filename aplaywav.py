@@ -40,7 +40,7 @@ def play(device, f):
 
 
 def usage():
-    print('usage: playwav.py [-c <card>] <file>', file=sys.stderr)
+    print('usage: aplaywav.py [-c <card>] <file>', file=sys.stderr)
     sys.exit(2)
 
 if __name__ == '__main__':
